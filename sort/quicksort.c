@@ -1,9 +1,12 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include<time.h>
+#include <time.h>
+#include <stack>
+#include <utility>
 
-#define LENGTH 100
+
+#define LENGTH 10
 
 int array[LENGTH];
 int array_used[LENGTH];
@@ -33,25 +36,28 @@ void ArrayView(int *array, int length){
   printf("\n");
 }
 
-void Quicksort1(int *array, int b, int e) {
-  if (b >= e) return;
-  int low = b, high = e, val = array[e];
+int partition1(int *array, int low, int high) {
+  int val = array[low];
   while(low < high) {
-    while(low<=high && array[high]>=val) --high;
-	if(low<high) swap(&array[low], &array[high]);
-    while(low<=high && array[low]<=val) ++low;
-	if(low<high) swap(&array[low], &array[high]);
+    while(low<high && array[high]>=val) --high;
+    swap(&array[low], &array[high]);
+    while(low<high && array[low]<=val) ++low;
+    swap(&array[low], &array[high]);
   }
-  swap(&array[e], &array[low]);
-  Quicksort1(array, b, low-1);
-  Quicksort1(array, low+1, e);
+  return low;
 }
 
-void Quicksort2(int *array, int b, int e) {
-  if(b>=e) return;
+void Quicksort1(int *array, int b, int e) {
+  if (b >= e) return;
+  int p = partition1(array, b, e);
+  Quicksort1(array, b, p-1);
+  Quicksort1(array, p+1, e);
+}
+
+int partition2(int *array, int low, int high) {
   int i,j;
-  for(i=b,j=b; j<e;){
-    if(array[j]<array[e]) {
+  for(i=low,j=low; j<high;){
+    if(array[j]<array[high]) {
       if(i!=j)
         swap(&array[i], &array[j]);
       ++i;++j;
@@ -59,9 +65,29 @@ void Quicksort2(int *array, int b, int e) {
       ++j;
     }
   }
-  swap(&array[i], &array[e]);
-  Quicksort2(array, b, i-1);
-  Quicksort2(array, i+1, e);
+  return i;
+}
+
+void Quicksort2(int *array, int b, int e) {
+  if(b>=e) return;
+  int p = partition2(array, b, e);
+  swap(&array[p], &array[e]);
+  Quicksort2(array, b, p-1);
+  Quicksort2(array, p+1, e);
+}
+
+void QuicksortNonRecur(int *array, int b, int e) {
+  if (b >= e) return;
+  std::stack< std::pair<int, int> > stk;
+  stk.push(std::make_pair(b, e));
+  while(!stk.empty()) {
+    std::pair<int, int> pair = stk.top();
+    stk.pop();
+    if(pair.first >= pair.second) continue;
+    int p = partition1(array, pair.first, pair.second);
+    if(p < pair.second) stk.push(std::make_pair(p+1, e));
+    if(p > pair.first) stk.push(std::make_pair(b, p-1));
+  }
 }
 int main(){
   struct timeval tbegin, tend;
@@ -83,6 +109,15 @@ int main(){
   Quicksort2(array_used, 0, LENGTH-1);
   gettimeofday(&tend, NULL);
   printf("end quick sort2!\n");
+  ArrayView(array_used, LENGTH);
+  printf("time usage: %ld usec \n", (tend.tv_sec-tbegin.tv_sec)*1000000+tend.tv_usec-tbegin.tv_usec);
+
+  printf("\nbegin quick sort nonrecur...\n");
+  ArrayCopy(array, array_used, LENGTH);
+  gettimeofday(&tbegin, NULL);
+  QuicksortNonRecur(array_used, 0, LENGTH-1);
+  gettimeofday(&tend, NULL);
+  printf("end quick sort nonrecur!\n");
   ArrayView(array_used, LENGTH);
   printf("time usage: %ld usec \n", (tend.tv_sec-tbegin.tv_sec)*1000000+tend.tv_usec-tbegin.tv_usec);
 }
