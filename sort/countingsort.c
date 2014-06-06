@@ -37,7 +37,6 @@ void CountingSort(int *array, int length){
     array_sort[array_count[array[i]]] = array[i];
     array_count[array[i]]--;
   }
-
 }
 
 
