@@ -36,15 +36,20 @@ int RadixSort(int *array) {
   for(int i=0; i<2; ++i) {
     for(int j=0; j<NUM; ++j){
       int r = i, index = array[j];
-      while (--r>0) index /= NUM;
+      while (r-->0) index /= NUM;
       array_count[index%NUM]++;
     }
     for(int k=1; k<NUM; ++k)
       array_count[k] += array_count[k-1];
+    ArrayView(array_count);
     for(int m=NUM-1; m>=0; --m){
-      array_tmp[array_count[array[m]]] = array[m];
-      array_count[array[m]]--;
+      int r = i, index = array[m];
+      while (r-->0) index /= NUM;
+      array_tmp[array_count[index%NUM]-1] = array[m];
+      array_count[index%NUM]--;
     }
+    printf("%d \n", i);
+    ArrayView(array_tmp);
     ArrayCopy(array_tmp, array);
     ArrayReset(array_count);
   }
