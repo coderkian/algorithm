@@ -3,10 +3,8 @@
 #include <stack>
 #include <vector>
 #include <iterator>
+#include <ctime>
 #include <sys/time.h>
-#include <stdlib.h>
-#include <time.h>
-#include <utility>
 
 #define LENGTH 10
 
@@ -66,6 +64,7 @@ void QuicksortNonRecur(vector<int> &array, int b, int e) {
     if(p > pair.first) stk.push(make_pair(b, p-1));
   }
 }
+
 int main(){
   struct timeval tbegin, tend;
   vector<int> array(LENGTH), array_used(LENGTH);

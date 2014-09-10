@@ -32,7 +32,7 @@ struct HashNode
 template <typename T, typename hash_fun = hash<T>, typename com_fun = equal_to<T> >
 class HashTable {
  public:
-  HashTable(): bucketsize(num), entrynum(0), hash(), comfun(){
+  HashTable(): bucketsize(num), entrynum(0),hash(), comfun(){
 	bucket = new HashNode<T>*[num]; 
 	memset(bucket, 0, num*sizeof(HashNode<T>*));
   }  
@@ -81,8 +81,6 @@ class HashTable {
   HashNode<T> **bucket;
   unsigned int bucketsize;
   unsigned int entrynum;
-  int shiftbits;
-  unsigned int mask;
   hash_fun hash;
   com_fun comfun;
   size_t getKey(T value, int n) { return hash(value)%n; }
@@ -98,7 +96,7 @@ class HashTable {
 	delete [] bucket;
   }
   void RebuildHashTable() {
-    int size = bucketsize<<1;
+    int size = bucketsize<<2;
     HashNode<T> **newbucket = new HashNode<T>*[size];
 	memset(newbucket, 0, size*sizeof(HashNode<T>*));
 	for(int i=0; i<bucketsize; ++i) {
